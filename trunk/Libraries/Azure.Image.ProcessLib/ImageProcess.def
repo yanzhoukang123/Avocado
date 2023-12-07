@@ -1,0 +1,50 @@
+; ImageProcess.def : Declares the module parameters for the DLL.
+
+LIBRARY      "Azure.Image.ProcessLib.dll"
+
+EXPORTS
+    ; Explicit exports can go here
+    MVC_IMG_ToByte		@1
+	MVC_IMG_ToGray		@2
+	MVC_IMG_Init		@3
+
+	MVC_BUF_ToGray		@5
+	MVC_BUF_RGB2Gray	@6
+	MVC_BUF_Flip		@7
+	MVC_BUF_Rotate		@8
+	MVC_BUF_RGBExtract	@9
+	MVC_BUF_Resize		@10
+	MVC_BUF_Scale		@11
+	MVC_BUF_Max			@12
+	MVC_BUF_Min			@13
+	MVC_BUF_GetPixel	@14
+	MVC_BUF_SetPixel	@15
+	MVC_BUF_Invert		@16
+	MVC_BUF_Despeckle	@17
+	MVC_BUF_Crop		@18
+	MVC_BUF_RGBCompose	@19
+	MVC_BUF_ImageAdd	@20
+	MVC_BUF_ImageDivC	@21
+	MVC_BUF_ImageMulC	@22
+
+	MVC_BUF_AddDivided16uTo32f	@23
+	MVC_BUF_Scale32fTo16u		@24
+	MVC_BUF_Sub16u				@25
+	MVC_BUF_MedianFilter        @30
+	MVC_BUF_ImageSubC           @40
+	MVC_BUF_DivC_32f_C1R        @50
+	MVC_BUF_Add16uTo32f			@60
+	MVC_BUF_Histogram			@63
+	MVC_BUF_DivAndScale			@65
+	MVC_BUF_DivAndScaleWithROI	@41
+
+	MVC_BUF_RGBExtractSingleChannel	@66
+	MVC_BUF_GetAutoScaleValues		@67
+	MVC_BUF_ScaleSingleChannel		@68
+	MVC_BUF_CopyReplicateBorder		@70
+	MVC_BUF_CopyConstBorder			@71
+	MVC_BUF_Convert8bppTo16bpp		@72
+	MVC_BUF_MeanStdDev				@73
+
+	MVC_BUF_HistogramEven			@80
+	MVC_BUF_HistogramEven_16u_C1R	@82

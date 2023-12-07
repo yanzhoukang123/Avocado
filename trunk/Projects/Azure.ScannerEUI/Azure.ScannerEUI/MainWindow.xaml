@@ -1,0 +1,217 @@
+﻿<Window x:Class="Azure.ScannerEUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:avalonDock="clr-namespace:AvalonDock;assembly=AvalonDock"
+        xmlns:avalonDockMVVM="clr-namespace:AvalonDockMVVM;assembly=AvalonDockMVVM"
+        xmlns:local="clr-namespace:Azure.ScannerEUI.View"
+        xmlns:vm="clr-namespace:Azure.ScannerEUI.ViewModel"
+        Title="AZURE SCANNER 2.0"
+        mc:Ignorable="d"
+        Closing="Window_Closing"
+        Closed="Window_Closed" Height="1059" Width="1669" >
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Azure.ScannerEUI;component/Resources/AllResources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Data template for displaying tabbed documents. -->
+            <DataTemplate
+                DataType="{x:Type vm:FileViewModel}">
+                <avalonDock:DocumentContent
+                    Title="{Binding FileName}"
+                    ToolTip="{Binding ToolTip}"
+                    FontSize="17">
+                    <local:ImageViewer />
+                </avalonDock:DocumentContent>
+            </DataTemplate>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid IsEnabled="{Binding IsAuthenticated}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="520*" />
+            <RowDefinition Height="0" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="862*" />
+                <ColumnDefinition Width="4" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Row="0" Grid.Column="0">
+                <TabControl x:Name="_MainTabControl"
+                    HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center"
+                    Padding="0"
+                    FontSize="18"
+                    Background="{x:Null}"
+                    SelectedIndex="{Binding Path=SelectedTabIndex, Mode=TwoWay}">
+
+                    <!--TabItem Header="{x:Static lstr:Resources.NAV_DarkroomNodeLabel}" Visibility="{Binding Path=UserLoggedIn, Converter={StaticResource booleanToVisibility}}">
+                        <local:DarkRoomPanel DataContext="{Binding Path=DarkRoom}"/>
+                    </TabItem-->
+                    <!--TabItem Header="{x:Static lstr:Resources.NAV_GalleryNodeLabel}" Visibility="{Binding Path=UserLoggedIn, Converter={StaticResource booleanToVisibility}}" >
+                        <local:ImageGalleryPanel x:Name="_ImageGalleryPanel"
+                            DataContext="{Binding Path=ImageGallery}" />
+                    </TabItem-->
+                    <TabItem Header="Imaging">
+                        <Border x:Name="ImageViewerContainer" Grid.Row="0" Grid.Column="0">
+                            <local:ImagingViewer />
+                        </Border>
+                    </TabItem>
+                    <TabItem Header="ScanChart" >
+                        <Border x:Name="ScanChartContainer" Grid.Row="0" Grid.Column="0">
+                            <local:ScanDynamicChart />
+                        </Border>
+                    </TabItem>
+                    <TabItem Header="Gallery">
+                        <Border x:Name="DockManagerContainer" Grid.Row="0" Grid.Column="0">
+                            <!-- Image Viewer Tabs DataContext="{Binding Path=mainImageViewModel}"-->
+                            <AdornerDecorator>
+                                <avalonDockMVVM:AvalonDockHost
+                                    x:Name="AvalonDockHost"
+                                    Panes="{Binding Panes}"
+                                    Documents="{Binding Files}"
+                                    ActiveDocument="{Binding ActiveDocument}"
+                                    ActivePane="{Binding ActivePane}"
+                                    AvalonDockLoaded="avalonDockHost_AvalonDockLoaded"
+                                    DocumentClosing="avalonDockHost_DocumentClosing"
+                                    ForceCursor="True" />
+                            </AdornerDecorator>
+                        </Border>
+                    </TabItem>
+                </TabControl>
+            </Grid>
+
+            <Border Grid.Row="0" Grid.Column="2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+
+                    </Grid.RowDefinitions>
+                    <local:ScanWorkUserControl x:Name="_ScannerWorkPanel" Margin="0,31,3,3" BorderThickness="0.5"  HorizontalAlignment="Right" Opacity="1">
+                        <local:ScanWorkUserControl.Visibility>
+                            <MultiBinding Converter="{StaticResource ResourceKey=boolToVisibleMultiConverter}">
+                                <Binding Path="IsImagingMode" />
+                                <Binding Path="IsScannerMode" />
+                            </MultiBinding>
+                        </local:ScanWorkUserControl.Visibility>
+                    </local:ScanWorkUserControl>
+                    <local:ScannerModePanel x:Name="_ScannerModePanel" IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.MotorIsAlive}"
+                        Margin="3,0,1,9">
+                        <local:ScannerModePanel.Visibility>
+                            <MultiBinding Converter="{StaticResource ResourceKey=boolToVisibleMultiConverter}">
+                                <Binding Path="IsImagingMode" />
+                                <Binding Path="IsScannerMode" />
+                            </MultiBinding>
+                        </local:ScannerModePanel.Visibility>
+                    </local:ScannerModePanel>
+
+
+                    <local:GalleryPanel x:Name="_GalleryPanel"
+                        Margin="1,27,4,1"
+                        Visibility="{Binding Path=IsImagingMode, Converter={StaticResource boolToVisibilityNegateConverter}}"/>
+
+                    <Grid Grid.Row="2" Margin="0,0,0,-55">
+                        <Grid.RowDefinitions>
+                            <!--<RowDefinition Height="Auto"/>-->
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"  />
+                            <ColumnDefinition Width="35" />
+                            <ColumnDefinition Width="Auto" />
+                            <!--<ColumnDefinition Width="5"/>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="5"/>-->
+                        </Grid.ColumnDefinitions>
+                        <!--Door status-->
+
+
+                        <!--<local:ScanControl HorizontalAlignment="Right" Grid.Column="2" Grid.Row="1" >
+                            <local:ScanControl.Visibility>
+                                <MultiBinding Converter="{StaticResource ResourceKey=boolToVisibleMultiConverter}">
+                                    <Binding Path="DataContext.IsImagingMode" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Window}}" />
+                                    <Binding Path="DataContext.IsScannerMode" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Window}}" />
+                                </MultiBinding>
+                            </local:ScanControl.Visibility>
+                        </local:ScanControl>
+                        
+                        -->
+
+                        <!--Save & Open-->
+                        <!--<local:OpenSaveControl Grid.Column="4"
+                                               Visibility="{Binding Path=IsImagingMode, Converter={StaticResource boolToVisibilityNegateConverter}}" 
+                                               Margin="0,0,4,0" />-->
+
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="2" Margin="0,0,0,0" >
+            <Grid Margin="0,0,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" MinWidth="618" />
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <local:MotorControl x:Name="_MotorControl" Grid.Column="0"
+                    IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.MotorIsAlive}" Height="147" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="1290" Grid.ColumnSpan="2"/>
+                    <Grid Grid.Column="1">
+                        <StackPanel Grid.Column="2" Orientation="Horizontal">
+                            <!--<TextBlock Text="Data Receiving Rate(KB/Sec)" Margin="5"/>
+                    <TextBlock Text="{Binding Path=EthernetDataRate}" Margin="5"/>-->
+                            <!--IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.MotorIsAlive}"-->
+
+                            <local:VersionsAndOtheSettings    
+                     VerticalAlignment="Bottom"
+                    Margin="4,0,4,4" Height="104" Width="243" IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.MotorIsAlive}"/>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+
+                <local:DoorStatusControl Grid.Column="1"
+                            Visibility="{Binding Path=IsImagingMode, Converter={StaticResource boolToVisibilityConverter}}" Height="Auto" Margin="8,4,530,31" HorizontalContentAlignment="Left"  />
+                <!--ScanAndSpentTimeAndRemaining-->
+                <local:UsScanContorlSpentTimeAndRemaining  HorizontalAlignment="Left"  Grid.Column="1" HorizontalContentAlignment="Left" Margin="133,-7,0,48"  Panel.ZIndex="1000" IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.ScanIsAlive}">
+                    <local:UsScanContorlSpentTimeAndRemaining.Visibility>
+                        <MultiBinding Converter="{StaticResource ResourceKey=boolToVisibleMultiConverter}">
+
+                            <Binding Path="DataContext.IsImagingMode" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Window}}" />
+                            <Binding Path="DataContext.IsScannerMode" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Window}}" />
+                        </MultiBinding>
+                    </local:UsScanContorlSpentTimeAndRemaining.Visibility>
+
+                </local:UsScanContorlSpentTimeAndRemaining>
+                <local:DisconnectDevice   Grid.Column="1" Margin="264,101,4,-7"></local:DisconnectDevice>
+                <!--<local:TransportLockControl x:Name="_TransportLockControl" Grid.Column="1" IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.MotorIsAlive}"  VerticalAlignment="Bottom"
+                    Margin="4,0,4,4" Height="114" />-->
+                <!--<StackPanel Grid.Column="1" Orientation="Horizontal">
+
+                    -->
+                <!--<TextBlock Text="Data Receiving Rate(KB/Sec)" Margin="5"/>
+                    <TextBlock Text="{Binding Path=EthernetDataRate}" Margin="5"/>
+                IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.MotorIsAlive}"-->
+                <!--
+
+
+                </StackPanel>-->
+
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
